@@ -80,7 +80,7 @@ REPORT
    macro avg       0.84      0.86      0.85     20632
 weighted avg       0.85      0.85      0.85     20632
 
-CONFUSSION MATRIX
+CONFUSION MATRIX
 [[2839  373   19]
  [ 699 8480 1163]
  [  34  805 6220]]
@@ -98,7 +98,7 @@ REPORT
    macro avg       0.79      0.78      0.79     20632
 weighted avg       0.80      0.80      0.80     20632
 
-CONFUSSION MATRIX
+CONFUSION MATRIX
 [[2465  709   57]
  [ 798 8560  984]
  [  93 1571 5395]]
@@ -116,7 +116,7 @@ REPORT
    macro avg       0.73      0.68      0.69     20632
 weighted avg       0.73      0.72      0.71     20632
 
-CONFUSSION MATRIX
+CONFUSION MATRIX
 [[1961 1209   61]
  [ 789 8801  752]
  [ 200 2834 4025]]
