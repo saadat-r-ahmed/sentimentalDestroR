@@ -1,0 +1,130 @@
+Using custom data configuration default
+Reusing dataset rotten_tomatoes (/home/maxwell/.cache/huggingface/datasets/rotten_tomatoes/default/1.0.0/40d411e45a6ce3484deed7cc15b82a53dad9a72aafd9f86f8f227134bec5ca46)
+100%|███████████████████████████████████████████| 3/3 [00:00<00:00, 1045.79it/s]
+[34;1mtextattack[0m: Loading [94mdatasets[0m dataset [94mrotten_tomatoes[0m, split [94mtrain[0m.
+[34;1mtextattack[0m: Loading pre-trained model from HuggingFace model repository: [94msiebert/sentiment-roberta-large-english[0m
+[34;1mtextattack[0m: Unknown if model of class <class 'transformers.models.roberta.modeling_roberta.RobertaForSequenceClassification'> compatible with goal function <class 'textattack.goal_functions.classification.untargeted_classification.UntargetedClassification'>.
+[34;1mtextattack[0m: Logging to text file at path 2023-04-24-04-35-log.txt
+[34;1mtextattack[0m: Running 1 worker(s) on 1 GPU(s).
+[34;1mtextattack[0m: Worklist size: 15
+[34;1mtextattack[0m: Worklist candidate size: 8515
+  0%|                                                    | 0/15 [00:00<?, ?it/s]Attack(
+  (search_method): GreedyWordSwapWIR(
+    (wir_method):  unk
+  )
+  (goal_function):  UntargetedClassification
+  (transformation):  WordSwapEmbedding(
+    (max_candidates):  15
+    (embedding):  WordEmbedding
+  )
+  (constraints): 
+    (0): RepeatModification
+    (1): StopwordModification
+  (is_black_box):  True
+) 
+
+  7%|██▉                                         | 1/15 [00:14<03:27, 14.79s/it]--------------------------------------------- Result 1 ---------------------------------------------
+[92mPositive (100%)[0m --> [91mNegative (96%)[0m
+
+it's an ambitious film , and as with all ambitious [92mfilms[0m , it has some problems . but on the [92mwhole[0m , you're [92mgonna[0m [92mlike[0m this [92mmovie[0m .
+
+it's an ambitious film , and as with all ambitious [91mcine[0m , it has some problems . but on the [91mgenerals[0m , you're [91mwill[0m [91mgenera[0m this [91mcinematography[0m .
+[Succeeded / Failed / Skipped / Total] 1 / 0 / 0 / 1:  13%|▏| 2/15 [00:18<02:02,--------------------------------------------- Result 2 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (99%)[0m
+
+cacoyannis' vision is far [91mless[0m mature , interpreting the play as a call for pity and sympathy for anachronistic phantasms haunting the imagined glory of their own pasts .
+
+cacoyannis' vision is far [92msmaller[0m mature , interpreting the play as a call for pity and sympathy for anachronistic phantasms haunting the imagined glory of their own pasts .
+[Succeeded / Failed / Skipped / Total] 2 / 0 / 0 / 2:  20%|▏| 3/15 [00:21<01:25,--------------------------------------------- Result 3 ---------------------------------------------
+[92mPositive (100%)[0m --> [91mNegative (98%)[0m
+
+yeah , these flicks are just that damn [92mgood[0m . isn't it great ?
+
+yeah , these flicks are just that damn [91malright[0m . isn't it great ?
+[Succeeded / Failed / Skipped / Total] 3 / 0 / 0 / 3:  27%|▎| 4/15 [00:26<01:14,--------------------------------------------- Result 4 ---------------------------------------------
+[92mPositive (100%)[0m --> [91mNegative (100%)[0m
+
+this movie [92mgot[0m me [92mgrinning[0m . there's a part of us that cannot help be entertained by the sight of someone getting away with something .
+
+this movie [91mwas[0m me [91msmirking[0m . there's a part of us that cannot help be entertained by the sight of someone getting away with something .
+[Succeeded / Failed / Skipped / Total] 4 / 0 / 0 / 4:  33%|▎| 5/15 [00:39<01:19,--------------------------------------------- Result 5 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (99%)[0m
+
+what the [91mdirector[0m can&#8217 ; t do is [91mmake[0m [91meither[0m of val [91mkilmer[0m&#8217 ; s two [91mpersonas[0m [91minteresting[0m or worth caring about .
+
+what the [92mheadmistress[0m can&#8217 ; t do is [92mafford[0m [92mwithout[0m of val [92mharrelson[0m&#8217 ; s two [92mpersonally[0m [92mriveting[0m or worth caring about .
+[Succeeded / Failed / Skipped / Total] 5 / 0 / 0 / 5:  40%|▍| 6/15 [00:48<01:12,--------------------------------------------- Result 6 ---------------------------------------------
+[92mPositive (100%)[0m --> [91mNegative (100%)[0m
+
+the passions aroused by the discord between old and new cultures are [92mset[0m against the strange , stark beauty of the mideast desert , so [92mlovingly[0m and perceptively [92mfilmed[0m that you can almost taste the desiccated air .
+
+the passions aroused by the discord between old and new cultures are [91mgaming[0m against the strange , stark beauty of the mideast desert , so [91mlavishly[0m and perceptively [91mmurdered[0m that you can almost taste the desiccated air .
+[Succeeded / Failed / Skipped / Total] 6 / 0 / 0 / 6:  47%|▍| 7/15 [00:57<01:05,--------------------------------------------- Result 7 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (99%)[0m
+
+trouble [91mevery[0m day is a success in some sense , but it's [91mhard[0m to like a [91mfilm[0m so cold and [91mdead[0m .
+
+trouble [92meveything[0m day is a success in some sense , but it's [92mchallenging[0m to like a [92mcinematography[0m so cold and [92mdie[0m .
+[Succeeded / Failed / Skipped / Total] 7 / 0 / 0 / 7:  53%|▌| 8/15 [01:05<00:57,--------------------------------------------- Result 8 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (97%)[0m
+
+there's no [91mgetting[0m around the [91mfact[0m that this is revenge of the [91mnerds[0m [91mrevisited[0m -- again .
+
+there's no [92mobtain[0m around the [92meffected[0m that this is revenge of the [92mgeeks[0m [92mscrutinize[0m -- again .
+[Succeeded / Failed / Skipped / Total] 8 / 0 / 0 / 8:  60%|▌| 9/15 [01:15<00:50,--------------------------------------------- Result 9 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (99%)[0m
+
+oh [91mcome[0m on . [91mlike[0m you couldn't [91msmell[0m this [91mturkey[0m rotting from [91mmiles[0m away .
+
+oh [92mbe[0m on . [92menjoy[0m you couldn't [92mperfume[0m this [92marmenians[0m rotting from [92mmilla[0m away .
+[Succeeded / Failed / Skipped / Total] 9 / 0 / 0 / 9:  67%|▋| 10/15 [01:34<00:47--------------------------------------------- Result 10 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (98%)[0m
+
+shreve's [91mgraceful[0m [91mdual[0m [91mnarrative[0m gets [91mclunky[0m on the screen , and we keep [91mgetting[0m [91mtorn[0m away from the compelling [91mhistorical[0m tale to a less-compelling [91msoap[0m [91mopera[0m .
+
+shreve's [92mgraciously[0m [92mdoubled[0m [92mtale[0m gets [92mfiddly[0m on the screen , and we keep [92mgain[0m [92mdivided[0m away from the compelling [92mlandmark[0m tale to a less-compelling [92msoaps[0m [92mtheaters[0m .
+[Succeeded / Failed / Skipped / Total] 10 / 0 / 0 / 10:  73%|▋| 11/15 [01:39<00:--------------------------------------------- Result 11 ---------------------------------------------
+[92mPositive (100%)[0m --> [91mNegative (100%)[0m
+
+the film is [92mdarkly[0m [92mfunny[0m in its observation of just how much more grueling and time-consuming the illusion of work is than actual work .
+
+the film is [91mcomically[0m [91modd[0m in its observation of just how much more grueling and time-consuming the illusion of work is than actual work .
+[Succeeded / Failed / Skipped / Total] 11 / 0 / 0 / 11:  80%|▊| 12/15 [01:50<00:--------------------------------------------- Result 12 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (99%)[0m
+
+only about as [91msexy[0m and dangerous as an actress in a role that [91mreminds[0m at [91mevery[0m [91mturn[0m of elizabeth berkley's [91mflopping[0m dolphin-gasm .
+
+only about as [92mscorching[0m and dangerous as an actress in a role that [92mcallbacks[0m at [92mtous[0m [92mtransforms[0m of elizabeth berkley's [92mwobbling[0m dolphin-gasm .
+[Succeeded / Failed / Skipped / Total] 12 / 0 / 0 / 12:  87%|▊| 13/15 [02:05<00:--------------------------------------------- Result 13 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (99%)[0m
+
+as [91mexciting[0m as all this exoticism might [91msound[0m to the [91mtypical[0m [91mpax[0m [91mviewer[0m , the [91mrest[0m of us will be [91mlulled[0m into a coma .
+
+as [92mbreathtaking[0m as all this exoticism might [92maudible[0m to the [92mhallmarks[0m [92mromulus[0m [92maimer[0m , the [92mresting[0m of us will be [92mmesmerized[0m into a coma .
+[Succeeded / Failed / Skipped / Total] 13 / 0 / 0 / 13:  93%|▉| 14/15 [02:07<00:--------------------------------------------- Result 14 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (99%)[0m
+
+a [91mhumorless[0m journey into a philosophical void .
+
+a [92msupercilious[0m journey into a philosophical void .
+[Succeeded / Failed / Skipped / Total] 14 / 0 / 0 / 14: 100%|█| 15/15 [02:11<00:--------------------------------------------- Result 15 ---------------------------------------------
+[91mNegative (100%)[0m --> [92mPositive (99%)[0m
+
+i've heard that the fans of the first men in black have come away hating the second one . i wonder why . they [91mfelt[0m like the same movie to me .
+
+i've heard that the fans of the first men in black have come away hating the second one . i wonder why . they [92mbelieved[0m like the same movie to me .
+[Succeeded / Failed / Skipped / Total] 15 / 0 / 0 / 15: 100%|█| 15/15 [02:12<00:
+
++-------------------------------+--------+
+| Attack Results                |        |
++-------------------------------+--------+
+| Number of successful attacks: | 15     |
+| Number of failed attacks:     | 0      |
+| Number of skipped attacks:    | 0      |
+| Original accuracy:            | 100.0% |
+| Accuracy under attack:        | 0.0%   |
+| Attack success rate:          | 100.0% |
+| Average perturbed word %:     | 18.6%  |
+| Average num. words per input: | 21.33  |
+| Avg num queries:              | 69.27  |
++-------------------------------+--------+

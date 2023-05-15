@@ -1,0 +1,99 @@
+--------------------------------------------- Result 1 ---------------------------------------------
+[[Positive (100%)]] --> [[Negative (96%)]]
+
+it's an ambitious film , and as with all ambitious [[films]] , it has some problems . but on the [[whole]] , you're [[gonna]] [[like]] this [[movie]] .
+
+it's an ambitious film , and as with all ambitious [[cine]] , it has some problems . but on the [[generals]] , you're [[will]] [[genera]] this [[cinematography]] .
+--------------------------------------------- Result 2 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (99%)]]
+
+cacoyannis' vision is far [[less]] mature , interpreting the play as a call for pity and sympathy for anachronistic phantasms haunting the imagined glory of their own pasts .
+
+cacoyannis' vision is far [[smaller]] mature , interpreting the play as a call for pity and sympathy for anachronistic phantasms haunting the imagined glory of their own pasts .
+--------------------------------------------- Result 3 ---------------------------------------------
+[[Positive (100%)]] --> [[Negative (98%)]]
+
+yeah , these flicks are just that damn [[good]] . isn't it great ?
+
+yeah , these flicks are just that damn [[alright]] . isn't it great ?
+--------------------------------------------- Result 4 ---------------------------------------------
+[[Positive (100%)]] --> [[Negative (100%)]]
+
+this movie [[got]] me [[grinning]] . there's a part of us that cannot help be entertained by the sight of someone getting away with something .
+
+this movie [[was]] me [[smirking]] . there's a part of us that cannot help be entertained by the sight of someone getting away with something .
+--------------------------------------------- Result 5 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (99%)]]
+
+what the [[director]] can&#8217 ; t do is [[make]] [[either]] of val [[kilmer]]&#8217 ; s two [[personas]] [[interesting]] or worth caring about .
+
+what the [[headmistress]] can&#8217 ; t do is [[afford]] [[without]] of val [[harrelson]]&#8217 ; s two [[personally]] [[riveting]] or worth caring about .
+--------------------------------------------- Result 6 ---------------------------------------------
+[[Positive (100%)]] --> [[Negative (100%)]]
+
+the passions aroused by the discord between old and new cultures are [[set]] against the strange , stark beauty of the mideast desert , so [[lovingly]] and perceptively [[filmed]] that you can almost taste the desiccated air .
+
+the passions aroused by the discord between old and new cultures are [[gaming]] against the strange , stark beauty of the mideast desert , so [[lavishly]] and perceptively [[murdered]] that you can almost taste the desiccated air .
+--------------------------------------------- Result 7 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (99%)]]
+
+trouble [[every]] day is a success in some sense , but it's [[hard]] to like a [[film]] so cold and [[dead]] .
+
+trouble [[eveything]] day is a success in some sense , but it's [[challenging]] to like a [[cinematography]] so cold and [[die]] .
+--------------------------------------------- Result 8 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (97%)]]
+
+there's no [[getting]] around the [[fact]] that this is revenge of the [[nerds]] [[revisited]] -- again .
+
+there's no [[obtain]] around the [[effected]] that this is revenge of the [[geeks]] [[scrutinize]] -- again .
+--------------------------------------------- Result 9 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (99%)]]
+
+oh [[come]] on . [[like]] you couldn't [[smell]] this [[turkey]] rotting from [[miles]] away .
+
+oh [[be]] on . [[enjoy]] you couldn't [[perfume]] this [[armenians]] rotting from [[milla]] away .
+--------------------------------------------- Result 10 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (98%)]]
+
+shreve's [[graceful]] [[dual]] [[narrative]] gets [[clunky]] on the screen , and we keep [[getting]] [[torn]] away from the compelling [[historical]] tale to a less-compelling [[soap]] [[opera]] .
+
+shreve's [[graciously]] [[doubled]] [[tale]] gets [[fiddly]] on the screen , and we keep [[gain]] [[divided]] away from the compelling [[landmark]] tale to a less-compelling [[soaps]] [[theaters]] .
+--------------------------------------------- Result 11 ---------------------------------------------
+[[Positive (100%)]] --> [[Negative (100%)]]
+
+the film is [[darkly]] [[funny]] in its observation of just how much more grueling and time-consuming the illusion of work is than actual work .
+
+the film is [[comically]] [[odd]] in its observation of just how much more grueling and time-consuming the illusion of work is than actual work .
+--------------------------------------------- Result 12 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (99%)]]
+
+only about as [[sexy]] and dangerous as an actress in a role that [[reminds]] at [[every]] [[turn]] of elizabeth berkley's [[flopping]] dolphin-gasm .
+
+only about as [[scorching]] and dangerous as an actress in a role that [[callbacks]] at [[tous]] [[transforms]] of elizabeth berkley's [[wobbling]] dolphin-gasm .
+--------------------------------------------- Result 13 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (99%)]]
+
+as [[exciting]] as all this exoticism might [[sound]] to the [[typical]] [[pax]] [[viewer]] , the [[rest]] of us will be [[lulled]] into a coma .
+
+as [[breathtaking]] as all this exoticism might [[audible]] to the [[hallmarks]] [[romulus]] [[aimer]] , the [[resting]] of us will be [[mesmerized]] into a coma .
+--------------------------------------------- Result 14 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (99%)]]
+
+a [[humorless]] journey into a philosophical void .
+
+a [[supercilious]] journey into a philosophical void .
+--------------------------------------------- Result 15 ---------------------------------------------
+[[Negative (100%)]] --> [[Positive (99%)]]
+
+i've heard that the fans of the first men in black have come away hating the second one . i wonder why . they [[felt]] like the same movie to me .
+
+i've heard that the fans of the first men in black have come away hating the second one . i wonder why . they [[believed]] like the same movie to me .
+Number of successful attacks: 15
+Number of failed attacks: 0
+Number of skipped attacks: 0
+Original accuracy: 100.0%
+Accuracy under attack: 0.0%
+Attack success rate: 100.0%
+Average perturbed word %: 18.6%
+Average num. words per input: 21.33
+Avg num queries: 69.27
