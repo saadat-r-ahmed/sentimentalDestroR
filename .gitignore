@@ -1,2 +1,4 @@
+Translation_Dataset/
 Sentiment_Dataset/
 venv_*/
+__pycache__/
