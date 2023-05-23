@@ -5,6 +5,12 @@ For the augmentation we use the augmentation recipe EDA, [Easy Data Augmentation
 # Dataset Description
 :open_file_folder: Sentiment Dataset 
 For this demonstration we focus on the dataset of [SemEval17 Task 4](https://alt.qcri.org/semeval2017/task4/index.php?id=data-and-tools), [IMBD](https://www.kaggle.com/datasets/yasserh/imdb-movie-ratings-sentiment-analysis), and [Rotten Tomatoes](https://huggingface.co/datasets/rotten_tomatoes) which is a very popular dataset for sentiment analysis. 
+The basic level analysis of the datasets are given below:
+- [SemEval 17 Task 4](https://raw.githack.com/saadat-r-ahmed/sentimentalDestroR/master/Outputs/BasicDataAnalysis/SemEval17_Data_Analysis.html)
+- [Rotten Tomatoes](https://raw.githack.com/saadat-r-ahmed/sentimentalDestroR/master/Outputs/BasicDataAnalysis/rotten_Data_Analysis.html)
+- [IMDB](https://raw.githack.com/saadat-r-ahmed/sentimentalDestroR/master/Outputs/BasicDataAnalysis/IMDB_Data_Analysis.html)
+- [BanglaNMT](https://raw.githack.com/saadat-r-ahmed/sentimentalDestroR/master/Outputs/BasicDataAnalysis/BanglaNMT_Data_Analysis.html)
+
 Folder structure:
 ```
 Sentiment_Dataset
