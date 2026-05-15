@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "destroR: Adversarial Attacks on Bangla Transfer Models"
+version: 0.2.0
+date-released: 2026-05-15
+url: "https://github.com/saadat-r-ahmed/sentimentalDestroR"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Ahmed
+      given-names: Saadat R.
+  title: "destroR: Attacking Transfer Models with Obfuscating Examples"
+  journal: "ACM Transactions on Asian and Low-Resource Language Information Processing"
+  year: 2026
+  doi: "TBD"

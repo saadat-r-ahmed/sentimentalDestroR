@@ -1,0 +1,20 @@
+# @package _global_
+attack:
+  name: one_hot_swap
+  masker: banglabert          # banglabert | muril | xlm-r (ablation)
+  top_k: 10
+  perturbation_budget: 0.20
+  similarity_threshold: 0.7
+
+dataset:
+  names: [blp23, youtube, cognisenti, basa_cricket]
+  split: test
+  max_samples: null
+
+model:
+  keys: [ka05ar, banglabert-finetuned, banglishbert-finetuned, xlm-r-finetuned, muril-finetuned, indicbertv2-finetuned]
+
+run:
+  seeds: [42, 1337, 2024]
+  output_dir: results/raw_runs
+  wandb: true

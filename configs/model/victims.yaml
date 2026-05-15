@@ -1,0 +1,19 @@
+models:
+  ka05ar:
+    hf_path: ka05ar/banglabert-sentiment
+    label_map: {}
+  banglabert-finetuned:
+    hf_path: saadat-r-ahmed/banglabert-destror
+    label_map: {}
+  banglishbert-finetuned:
+    hf_path: saadat-r-ahmed/banglishbert-destror
+    label_map: {}
+  xlm-r-finetuned:
+    hf_path: saadat-r-ahmed/xlm-r-destror
+    label_map: {}
+  muril-finetuned:
+    hf_path: saadat-r-ahmed/muril-destror
+    label_map: {}
+  indicbertv2-finetuned:
+    hf_path: saadat-r-ahmed/indicbertv2-destror
+    label_map: {}

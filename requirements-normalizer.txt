@@ -1,0 +1,10 @@
+# The csebuetnlp normalizer conflicts with bnlp-toolkit (ftfy version clash).
+# Install this in a separate virtualenv or alongside the main env if you don't
+# need bnlp tokenization in the same process.
+#
+# pip install git+https://github.com/csebuetnlp/normalizer
+#
+# The attack code (paraphrase.py, back_translation.py) wraps normalizer calls
+# in try/except so experiments still run without it; text just won't be
+# Unicode-normalized before tokenization.
+git+https://github.com/csebuetnlp/normalizer
