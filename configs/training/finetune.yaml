@@ -1,0 +1,41 @@
+# @package _global_
+# Finetuning hyperparameters — identical for all 6 victim models (revision.md §1.1)
+training:
+  num_epochs: 5
+  batch_size: 16
+  learning_rate: 2.0e-5
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  max_seq_length: 256
+  gradient_accumulation_steps: 1
+  fp16: true
+  save_strategy: epoch
+  load_best_model_at_end: true
+  metric_for_best_model: f1_macro
+  evaluation_strategy: epoch
+
+model:
+  keys:
+    - banglabert        # csebuetnlp/banglabert
+    - banglishbert      # csebuetnlp/banglishbert
+    - xlm-r             # xlm-roberta-base
+    - muril             # google/muril-base-cased
+    - indicbertv2       # ai4bharat/IndicBERTv2-MLM-only
+    - titulm-1b         # hishab/titulm-llama-3.2-1b  (LoRA)
+
+dataset:
+  names: [blp23, youtube, cognisenti, basa_cricket]
+  split_seed: 42
+
+run:
+  seeds: [42]           # 3 seeds for final paper; 1 for week-1 clean-F1 check
+  output_dir: results/finetuned_models
+  push_to_hub: false    # set true after Week 1 validation
+  hub_org: saadat-r-ahmed
+  wandb: true
+
+lora:                   # only used for titulm-1b
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules: [q_proj, v_proj]

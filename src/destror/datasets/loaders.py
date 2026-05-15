@@ -8,20 +8,22 @@ from typing import Optional
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-DATA_DIR = Path(__file__).resolve().parents[4] / "data"
+DATA_DIR = Path(__file__).resolve().parents[3] / "data"
 
 # HuggingFace dataset identifiers for downloadable datasets
 _HF_DATASETS = {
     "blp23":          {"path": "BanglaLLP/blp23-sentiment", "text_col": "text", "label_col": "label"},
-    "youtube":        {"path": "BanglaLLP/youtube-sentiment", "text_col": "text", "label_col": "label"},
+    "youtube":        {"path": "BanglaLLP/youtube-sentiment", "text_col": "text", "label_col": "class_label"},
     "cognisenti":     {"path": "BanglaLLP/CogniSenti", "text_col": "text", "label_col": "label"},
     "basa_cricket":   {"path": "BanglaLLP/BASA-cricket", "text_col": "text", "label_col": "label"},
 }
 
 # Local TSV fallbacks (from BanglaClassificationAugment)
 _LOCAL_TSV = {
-    "blp23":   DATA_DIR / "raw" / "blp23_sentiment_dev.tsv",
-    "youtube": DATA_DIR / "raw" / "youtube_sentiment_test.tsv",
+    "blp23":        DATA_DIR / "raw" / "blp23_sentiment_dev.tsv",
+    "youtube":      DATA_DIR / "raw" / "youtube_sentiment_test.tsv",
+    "cognisenti":   DATA_DIR / "raw" / "cognisenti.tsv",
+    "basa_cricket": DATA_DIR / "raw" / "basa_cricket.tsv",
 }
 
 
@@ -77,13 +79,19 @@ def _normalize_columns(df: pd.DataFrame, name: str) -> pd.DataFrame:
     text_col = cfg.get("text_col", "text")
     label_col = cfg.get("label_col", "label")
 
-    # blp23 TSV has 'sentence' instead of 'text'
+    # Handle text column aliases
     for alias in ["sentence", "Sentence", "review", "Review"]:
         if alias in df.columns and text_col not in df.columns:
             df = df.rename(columns={alias: "text"})
             break
 
-    df = df.rename(columns={text_col: "text", label_col: "label"}, errors="ignore")
+    # Handle label column aliases (youtube uses class_label)
+    rename_map = {}
+    if text_col in df.columns and text_col != "text":
+        rename_map[text_col] = "text"
+    if label_col in df.columns and label_col != "label":
+        rename_map[label_col] = "label"
+    df = df.rename(columns=rename_map, errors="ignore")
     df = df.dropna(subset=["text", "label"]).reset_index(drop=True)
     df["text"] = df["text"].astype(str).str.strip()
     return df

@@ -1,42 +1,73 @@
-"""Download and cache all four datasets. Run once before experiments."""
+"""Download and cache all four datasets.
+
+blp23 + youtube:  TSVs already in data/raw/ (copied from BanglaClassificationAugment)
+CogniSenti:       Request from authors or download from original repo — see note below
+basa_cricket:     Available at https://github.com/LanguageTechnologyResearch/BASA
+
+Manual steps for missing datasets:
+  CogniSenti:
+    Paper: "CogniSenti: A Multi-lingual Multi-task Benchmark for Bangla Cognitive Sentiment Analysis"
+    Request data from: https://github.com/NLP-BRTEC/cogni-senti  OR  contact authors
+    Place as: data/raw/cognisenti.tsv  (columns: id, text, label)
+
+  BASA_cricket:
+    Repo:  https://github.com/LanguageTechnologyResearch/BASA
+    Download cricket split and place as: data/raw/basa_cricket.tsv  (columns: id, text, label)
+
+Once files are present, re-run this script to build Parquet caches.
+"""
 import shutil
 from pathlib import Path
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-# Copy TSVs from BanglaClassificationAugment if present (dev shortcut)
 _SIBLING = Path(__file__).resolve().parents[2] / "BanglaClassificationAugment" / "Dataset"
+
+# (source_file, dest_file) for sibling-repo copies
+_LOCAL_COPIES = [
+    (_SIBLING / "blp23_sentiment_dev.tsv",    RAW_DIR / "blp23_sentiment_dev.tsv"),
+    (_SIBLING / "youtube_sentiment_test.tsv", RAW_DIR / "youtube_sentiment_test.tsv"),
+]
 
 
 def _copy_local(src: Path, dst: Path):
     if src.exists() and not dst.exists():
         shutil.copy(src, dst)
-        print(f"Copied {src.name} → {dst}")
+        print(f"  Copied {src.name} → {dst}")
+    elif dst.exists():
+        print(f"  Already present: {dst.name}")
+    else:
+        print(f"  NOT FOUND (sibling repo): {src}")
 
 
-def _hf_download(hf_path: str, name: str):
-    try:
-        from datasets import load_dataset
-        ds = load_dataset(hf_path)
-        for split_name, split_ds in ds.items():
-            out = RAW_DIR / f"{name}_{split_name}.parquet"
-            if not out.exists():
-                split_ds.to_pandas().to_parquet(out, index=False)
-                print(f"Downloaded {hf_path} ({split_name}) → {out}")
-    except Exception as e:
-        print(f"WARNING: Could not download {hf_path}: {e}")
+def _check_manual(dst: Path, instructions: str):
+    if dst.exists():
+        print(f"  Present: {dst.name}")
+    else:
+        print(f"  MISSING: {dst.name}")
+        print(f"    {instructions}")
 
 
 if __name__ == "__main__":
-    # 1. Copy local TSVs if sibling repo exists
-    _copy_local(_SIBLING / "blp23_sentiment_dev.tsv",     RAW_DIR / "blp23_sentiment_dev.tsv")
-    _copy_local(_SIBLING / "youtube_sentiment_test.tsv",  RAW_DIR / "youtube_sentiment_test.tsv")
+    print("=== Dataset download / verify ===\n")
 
-    # 2. Download from HuggingFace (will no-op if already cached by datasets library)
-    _hf_download("BanglaLLP/blp23-sentiment",   "blp23")
-    _hf_download("BanglaLLP/youtube-sentiment", "youtube")
-    _hf_download("BanglaLLP/CogniSenti",        "cognisenti")
-    _hf_download("BanglaLLP/BASA-cricket",      "basa_cricket")
+    print("[blp23 + youtube] Copying from BanglaClassificationAugment sibling repo:")
+    for src, dst in _LOCAL_COPIES:
+        _copy_local(src, dst)
 
-    print("Done. Check data/raw/ for downloaded files.")
+    print("\n[CogniSenti] Manual download required:")
+    _check_manual(
+        RAW_DIR / "cognisenti.tsv",
+        "Get from https://github.com/NLP-BRTEC/cogni-senti and save as data/raw/cognisenti.tsv\n"
+        "    Expected columns: id, text, label  (labels: Positive/Negative/Neutral)",
+    )
+
+    print("\n[BASA_cricket] Manual download required:")
+    _check_manual(
+        RAW_DIR / "basa_cricket.tsv",
+        "Get from https://github.com/LanguageTechnologyResearch/BASA\n"
+        "    Expected columns: id, text, label  (labels: Positive/Negative/Neutral)",
+    )
+
+    print("\nDone. Run `make dataset-stats` after all files are present.")
