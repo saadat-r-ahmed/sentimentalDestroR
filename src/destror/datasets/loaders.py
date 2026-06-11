@@ -21,7 +21,7 @@ _HF_DATASETS = {
 # Local TSV fallbacks (from BanglaClassificationAugment)
 _LOCAL_TSV = {
     "blp23":        DATA_DIR / "raw" / "blp23_sentiment_dev.tsv",
-    "youtube":      DATA_DIR / "raw" / "youtube_sentiment_test.tsv",
+    "youtube":      DATA_DIR / "raw" / "youtube.tsv",          # full 2796-sample dataset
     "cognisenti":   DATA_DIR / "raw" / "cognisenti.tsv",
     "basa_cricket": DATA_DIR / "raw" / "basa_cricket.tsv",
 }

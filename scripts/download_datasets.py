@@ -1,73 +1,93 @@
 """Download and cache all four datasets.
 
-blp23 + youtube:  TSVs already in data/raw/ (copied from BanglaClassificationAugment)
-CogniSenti:       Request from authors or download from original repo — see note below
-basa_cricket:     Available at https://github.com/LanguageTechnologyResearch/BASA
+All datasets sourced from:
+  https://github.com/banglanlp/bangla-sentiment-classification
 
-Manual steps for missing datasets:
-  CogniSenti:
-    Paper: "CogniSenti: A Multi-lingual Multi-task Benchmark for Bangla Cognitive Sentiment Analysis"
-    Request data from: https://github.com/NLP-BRTEC/cogni-senti  OR  contact authors
-    Place as: data/raw/cognisenti.tsv  (columns: id, text, label)
+  CogniSenti:   data/CogniSenti/twitter_fbPost_merged_{train,dev,test}.tsv
+  BASA_cricket: data/ABSA_Datasets/BASA_cricket_{train,dev,test}.tsv
+  YouTube:      data/youtube_sentiment/sentiment_{train,dev,test}.tsv
+  BLP23:        provided separately in BanglaClassificationAugment/Dataset/
 
-  BASA_cricket:
-    Repo:  https://github.com/LanguageTechnologyResearch/BASA
-    Download cricket split and place as: data/raw/basa_cricket.tsv  (columns: id, text, label)
-
-Once files are present, re-run this script to build Parquet caches.
+Notes:
+  - Labels are merged across splits and re-split stratified 80/10/10 (seed 42).
+  - BASA_cricket labels normalized from lowercase to TitleCase.
+  - YouTube: full 2796-sample dataset (original paper only used the 420-sample test split).
 """
 import shutil
+import pandas as pd
 from pathlib import Path
 
-RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
+RAW_DIR  = Path(__file__).resolve().parents[1] / "data" / "raw"
+PROC_DIR = Path(__file__).resolve().parents[1] / "data" / "processed"
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-_SIBLING = Path(__file__).resolve().parents[2] / "BanglaClassificationAugment" / "Dataset"
-
-# (source_file, dest_file) for sibling-repo copies
-_LOCAL_COPIES = [
-    (_SIBLING / "blp23_sentiment_dev.tsv",    RAW_DIR / "blp23_sentiment_dev.tsv"),
-    (_SIBLING / "youtube_sentiment_test.tsv", RAW_DIR / "youtube_sentiment_test.tsv"),
-]
+# Sibling repos
+_BANGLA_SC = Path(__file__).resolve().parents[2] / "bangla-sentiment-classification" / "data"
+_BCA       = Path(__file__).resolve().parents[2] / "BanglaClassificationAugment" / "Dataset"
 
 
-def _copy_local(src: Path, dst: Path):
+def _merge_splits(paths: list[Path], label_col: str = "class_label") -> pd.DataFrame:
+    dfs = [pd.read_csv(p, sep="\t") for p in paths]
+    df  = pd.concat(dfs, ignore_index=True)
+    if label_col in df.columns and label_col != "label":
+        df = df.rename(columns={label_col: "label"})
+    df["label"] = df["label"].str.strip().str.title()
+    df["id"]    = range(len(df))
+    return df[["id", "text", "label"]]
+
+
+def _save(df: pd.DataFrame, name: str):
+    out = RAW_DIR / f"{name}.tsv"
+    df.to_csv(out, sep="\t", index=False)
+    print(f"  {name}: {len(df)} rows  labels={dict(df['label'].value_counts())}  → {out}")
+    # Clear any stale Parquet caches
+    for f in PROC_DIR.glob(f"{name}_*.parquet"):
+        f.unlink()
+        print(f"    cleared cache: {f.name}")
+
+
+def _copy_blp23():
+    src = _BCA / "blp23_sentiment_dev.tsv"
+    dst = RAW_DIR / "blp23_sentiment_dev.tsv"
     if src.exists() and not dst.exists():
         shutil.copy(src, dst)
-        print(f"  Copied {src.name} → {dst}")
+        print(f"  blp23: copied from sibling repo → {dst}")
     elif dst.exists():
-        print(f"  Already present: {dst.name}")
+        print(f"  blp23: already present")
     else:
-        print(f"  NOT FOUND (sibling repo): {src}")
-
-
-def _check_manual(dst: Path, instructions: str):
-    if dst.exists():
-        print(f"  Present: {dst.name}")
-    else:
-        print(f"  MISSING: {dst.name}")
-        print(f"    {instructions}")
+        print(f"  blp23: NOT FOUND at {src}")
 
 
 if __name__ == "__main__":
-    print("=== Dataset download / verify ===\n")
+    print("=== Dataset preparation ===\n")
 
-    print("[blp23 + youtube] Copying from BanglaClassificationAugment sibling repo:")
-    for src, dst in _LOCAL_COPIES:
-        _copy_local(src, dst)
+    print("[blp23]")
+    _copy_blp23()
 
-    print("\n[CogniSenti] Manual download required:")
-    _check_manual(
-        RAW_DIR / "cognisenti.tsv",
-        "Get from https://github.com/NLP-BRTEC/cogni-senti and save as data/raw/cognisenti.tsv\n"
-        "    Expected columns: id, text, label  (labels: Positive/Negative/Neutral)",
-    )
+    if _BANGLA_SC.exists():
+        print("\n[youtube]")
+        _save(_merge_splits([
+            _BANGLA_SC / "youtube_sentiment/sentiment_train.tsv",
+            _BANGLA_SC / "youtube_sentiment/sentiment_dev.tsv",
+            _BANGLA_SC / "youtube_sentiment/sentiment_test.tsv",
+        ]), "youtube")
 
-    print("\n[BASA_cricket] Manual download required:")
-    _check_manual(
-        RAW_DIR / "basa_cricket.tsv",
-        "Get from https://github.com/LanguageTechnologyResearch/BASA\n"
-        "    Expected columns: id, text, label  (labels: Positive/Negative/Neutral)",
-    )
+        print("\n[cognisenti]")
+        _save(_merge_splits([
+            _BANGLA_SC / "CogniSenti/twitter_fbPost_merged_train.tsv",
+            _BANGLA_SC / "CogniSenti/twitter_fbPost_merged_dev.tsv",
+            _BANGLA_SC / "CogniSenti/twitter_fbPost_merged_test.tsv",
+        ]), "cognisenti")
 
-    print("\nDone. Run `make dataset-stats` after all files are present.")
+        print("\n[basa_cricket]")
+        _save(_merge_splits([
+            _BANGLA_SC / "ABSA_Datasets/BASA_cricket_train.tsv",
+            _BANGLA_SC / "ABSA_Datasets/BASA_cricket_dev.tsv",
+            _BANGLA_SC / "ABSA_Datasets/BASA_cricket_test.tsv",
+        ]), "basa_cricket")
+    else:
+        print(f"\nWARNING: bangla-sentiment-classification repo not found at {_BANGLA_SC.parent}")
+        print("Clone it with:")
+        print("  git clone https://github.com/banglanlp/bangla-sentiment-classification.git")
+
+    print("\nDone. Run `make dataset-stats` to verify.")

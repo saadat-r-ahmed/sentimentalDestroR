@@ -1,0 +1,70 @@
+{
+  "blp23": {
+    "n_total": 3934,
+    "splits": {
+      "train": 3147,
+      "dev": 393,
+      "test": 394
+    },
+    "label_distribution": {
+      "Negative": 1753,
+      "Positive": 1388,
+      "Neutral": 793
+    },
+    "avg_tokens": 15.31,
+    "avg_chars": 85.4,
+    "code_mix_rate_mean": 0.0235,
+    "code_mix_rate_p90": 0.0862
+  },
+  "youtube": {
+    "n_total": 2796,
+    "splits": {
+      "train": 2236,
+      "dev": 280,
+      "test": 280
+    },
+    "label_distribution": {
+      "Positive": 752,
+      "Neutral": 761,
+      "Negative": 1283
+    },
+    "avg_tokens": 14.78,
+    "avg_chars": 83.08,
+    "code_mix_rate_mean": 0.037,
+    "code_mix_rate_p90": 0.142
+  },
+  "cognisenti": {
+    "n_total": 6570,
+    "splits": {
+      "train": 5256,
+      "dev": 657,
+      "test": 657
+    },
+    "label_distribution": {
+      "Neutral": 3749,
+      "Negative": 1333,
+      "Positive": 1488
+    },
+    "avg_tokens": 23.58,
+    "avg_chars": 135.67,
+    "code_mix_rate_mean": 0.0885,
+    "code_mix_rate_p90": 0.1783
+  },
+  "basa_cricket": {
+    "n_total": 2837,
+    "splits": {
+      "train": 2269,
+      "dev": 284,
+      "test": 284
+    },
+    "label_distribution": {
+      "Positive": 520,
+      "Neutral": 255,
+      "Negative": 2062
+    },
+    "avg_tokens": 10.29,
+    "avg_chars": 60.28,
+    "code_mix_rate_mean": 0.0016,
+    "code_mix_rate_p90": 0.0
+  }
+}

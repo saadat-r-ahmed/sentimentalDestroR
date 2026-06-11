@@ -14,7 +14,8 @@ build/
 .ruff_cache/
 wandb/
 results/raw_runs/
-data/raw/
+# Raw TSV files (<5MB) are tracked in git for reproducibility.
+# Large generated files (parquet, adversarial sets) use DVC instead.
 data/processed/
 data/adversarial/
 *.dvc.lock
