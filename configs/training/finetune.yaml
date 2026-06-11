@@ -14,6 +14,14 @@ training:
   metric_for_best_model: f1_macro
   evaluation_strategy: epoch
 
+# Per-model overrides applied in finetune_victim.py
+# titulm-1b (1B params, LoRA) requires smaller batch on 8GB VRAM
+model_overrides:
+  titulm-1b:
+    batch_size: 4
+    gradient_accumulation_steps: 4   # effective batch = 16
+    max_seq_length: 128
+
 model:
   keys:
     - banglabert        # csebuetnlp/banglabert

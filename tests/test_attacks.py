@@ -105,6 +105,54 @@ class TestBanglaOneHotSwapAttack:
 
 
 # ---------------------------------------------------------------------------
+# Back-translation attack
+# ---------------------------------------------------------------------------
+
+class TestBanglaBackTranslationAttack:
+    def _make_attack(self, victim):
+        from destror.attacks.back_translation import BanglaBackTranslationAttack
+        atk = BanglaBackTranslationAttack(victim=victim, seed=42, pivots=["en"])
+        # Bypass model loading entirely — mock at the candidate level
+        atk._generate_candidates = MagicMock(return_value=["ভিন্ন একটি বাক্য", "আরেকটি বাক্য"])
+        return atk
+
+    def test_required_fields_logged(self):
+        victim = _make_victim("Positive", 0.9)
+        atk = self._make_attack(victim)
+        results = atk.attack_dataset(_sample_records(2), "ds", "mdl")
+        for r in results:
+            assert r.attack == "back_translation"
+            assert r.n_queries >= 1
+            assert r.seed == 42
+
+    def test_picks_best_candidate(self):
+        """When one candidate flips the label the result should be success=True."""
+        # victim returns Negative for second candidate (flip), Positive for first
+        call_count = [0]
+        def victim(text):
+            call_count[0] += 1
+            if "আরেকটি" in text:
+                return ("Negative", 0.85)
+            return ("Positive", 0.9)
+
+        from destror.attacks.back_translation import BanglaBackTranslationAttack
+        atk = BanglaBackTranslationAttack(victim=victim, seed=42, similarity_threshold=0.0)
+        atk._generate_candidates = MagicMock(return_value=["ভিন্ন একটি বাক্য", "আরেকটি বাক্য"])
+        results = atk.attack_dataset(_sample_records(1), "ds", "mdl")
+        assert results[0].success is True
+
+    def test_falls_back_on_no_flip(self):
+        """With no label flip, success should be False and adversarial still set."""
+        victim = _make_victim("Positive", 0.9)
+        from destror.attacks.back_translation import BanglaBackTranslationAttack
+        atk = BanglaBackTranslationAttack(victim=victim, seed=42, similarity_threshold=0.0)
+        atk._generate_candidates = MagicMock(return_value=["ভিন্ন একটি বাক্য"])
+        results = atk.attack_dataset(_sample_records(1), "ds", "mdl")
+        assert results[0].success is False
+        assert results[0].adversarial != ""
+
+
+# ---------------------------------------------------------------------------
 # Metrics
 # ---------------------------------------------------------------------------
 

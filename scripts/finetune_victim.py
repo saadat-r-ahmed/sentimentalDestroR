@@ -32,6 +32,12 @@ def main(cfg: DictConfig) -> None:
         for model_key in cfg.model.keys:
             use_lora = model_key in lora_models
 
+            # Apply per-model hyperparameter overrides (e.g. smaller batch for LLMs)
+            overrides = dict(cfg.model_overrides.get(model_key, {})) if hasattr(cfg, "model_overrides") else {}
+            batch_size  = overrides.get("batch_size",  cfg.training.batch_size)
+            grad_accum  = overrides.get("gradient_accumulation_steps", cfg.training.gradient_accumulation_steps)
+            max_seq_len = overrides.get("max_seq_length", cfg.training.max_seq_length)
+
             for dataset_name in cfg.dataset.names:
                 run_id = f"{model_key}_{dataset_name}_seed{seed}"
                 log.info(f"==> {run_id}")
@@ -66,11 +72,12 @@ def main(cfg: DictConfig) -> None:
                         test_records=test,
                         output_dir=RESULTS_DIR,
                         num_epochs=cfg.training.num_epochs,
-                        batch_size=cfg.training.batch_size,
+                        batch_size=batch_size,
+                        gradient_accumulation_steps=grad_accum,
                         learning_rate=cfg.training.learning_rate,
                         warmup_ratio=cfg.training.warmup_ratio,
                         weight_decay=cfg.training.weight_decay,
-                        max_seq_length=cfg.training.max_seq_length,
+                        max_seq_length=max_seq_len,
                         fp16=cfg.training.fp16,
                         seed=seed,
                         push_to_hub=cfg.run.push_to_hub,
