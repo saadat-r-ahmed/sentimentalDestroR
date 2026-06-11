@@ -12,7 +12,7 @@ dataset:
   max_samples: null
 
 model:
-  keys: [ka05ar, banglabert-finetuned, banglishbert-finetuned, xlm-r-finetuned, muril-finetuned, indicbertv2-finetuned]
+  victims: [ka05ar, banglabert-finetuned, banglishbert-finetuned, xlm-r-finetuned, muril-finetuned, indicbertv2-finetuned]
 
 run:
   seeds: [42, 1337, 2024]

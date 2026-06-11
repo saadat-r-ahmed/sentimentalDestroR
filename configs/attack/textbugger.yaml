@@ -1,8 +1,10 @@
 # @package _global_
 attack:
-  name: back_translation
-  pivots: [en, hi]
+  name: textbugger
   similarity_threshold: 0.7
+  perturbation_budget: 0.20
+  masker: csebuetnlp/banglabert
+  top_k: 10
 
 dataset:
   names: [blp23, youtube, cognisenti, basa_cricket]
@@ -10,7 +12,7 @@ dataset:
   max_samples: null
 
 model:
-  victims: [ka05ar, banglabert-finetuned, banglishbert-finetuned, xlm-r-finetuned, muril-finetuned, indicbertv2-finetuned]
+  victims: [banglabert, banglishbert, xlm-r, muril, indicbertv2, titulm-1b]
 
 run:
   seeds: [42, 1337, 2024]

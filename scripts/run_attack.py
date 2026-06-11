@@ -18,6 +18,10 @@ def main(cfg: DictConfig) -> None:
     from destror.attacks.paraphrase import BanglaParaphraseAttack
     from destror.attacks.back_translation import BanglaBackTranslationAttack
     from destror.attacks.one_hot_swap import BanglaOneHotSwapAttack
+    from destror.attacks.baselines import (
+        BanglaTextFoolerAttack, BanglaTextBuggerAttack,
+        BanglaBAEAttack, BanglaBERTAttackAttack, BanglaPWWSAttack,
+    )
     from destror.datasets.loaders import load_dataset
     from destror.models.loaders import load_victim
 
@@ -25,6 +29,11 @@ def main(cfg: DictConfig) -> None:
         "paraphrase":      BanglaParaphraseAttack,
         "back_translation": BanglaBackTranslationAttack,
         "one_hot_swap":    BanglaOneHotSwapAttack,
+        "textfooler":      BanglaTextFoolerAttack,
+        "textbugger":      BanglaTextBuggerAttack,
+        "bae":             BanglaBAEAttack,
+        "bert_attack":     BanglaBERTAttackAttack,
+        "pwws":            BanglaPWWSAttack,
     }
 
     attack_cls = attack_map[cfg.attack.name]
@@ -34,7 +43,7 @@ def main(cfg: DictConfig) -> None:
     for seed in cfg.run.seeds:
         set_seed(seed)
 
-        for model_key in cfg.model.keys:
+        for model_key in cfg.model.victims:
             victim = load_victim(model_key)
 
             attack = attack_cls(victim=victim, seed=seed, **{
