@@ -66,6 +66,9 @@ def finetune(
     num_labels = len(all_labels)
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
+    # Llama-based models have no pad token — use eos as pad
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
 
     def tokenize(records: list[dict]) -> Dataset:
         texts = [r["text"] for r in records]
@@ -83,16 +86,23 @@ def finetune(
     eval_ds  = tokenize(eval_records)
     test_ds  = tokenize(test_records)
 
-    model = AutoModelForSequenceClassification.from_pretrained(
-        model_name,
-        num_labels=num_labels,
-        id2label=id2label,
-        label2id=label2id,
-        ignore_mismatched_sizes=True,
-    )
+    # QLoRA: load 4-bit quantized base for LLMs (use_lora=True implies QLoRA on GPU)
+    if use_lora and torch.cuda.is_available():
+        model = _load_qlora_model(model_name, num_labels, id2label, label2id, lora_config or {})
+    else:
+        load_dtype = torch.bfloat16 if bf16 else None
+        model = AutoModelForSequenceClassification.from_pretrained(
+            model_name,
+            num_labels=num_labels,
+            id2label=id2label,
+            label2id=label2id,
+            ignore_mismatched_sizes=True,
+            dtype=load_dtype,
+        )
 
-    if use_lora:
-        model = _apply_lora(model, lora_config or {})
+    # Llama has no pad token — align model config with tokenizer
+    if tokenizer.pad_token_id is not None:
+        model.config.pad_token_id = tokenizer.pad_token_id
 
     run_name = f"{model_key}_{dataset_name}_seed{seed}"
     ckpt_dir = output_dir / run_name
@@ -106,8 +116,9 @@ def finetune(
         learning_rate=learning_rate,
         warmup_ratio=warmup_ratio,
         weight_decay=weight_decay,
-        fp16=fp16 and torch.cuda.is_available() and not bf16,
-        bf16=bf16 and torch.cuda.is_available(),
+        fp16=fp16 and torch.cuda.is_available() and not bf16 and not use_lora,
+        bf16=bf16 and torch.cuda.is_available() and not use_lora,
+        gradient_checkpointing=use_lora,
         eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
@@ -172,6 +183,40 @@ def finetune(
         trainer.push_to_hub()
 
     return metrics
+
+
+def _load_qlora_model(model_name, num_labels, id2label, label2id, lora_config: dict):
+    """Load model in 4-bit (NF4) + LoRA adapters for 8GB VRAM."""
+    from transformers import BitsAndBytesConfig
+    from peft import LoraConfig, get_peft_model, TaskType, prepare_model_for_kbit_training
+
+    bnb_cfg = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_use_double_quant=True,
+    )
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_name,
+        num_labels=num_labels,
+        id2label=id2label,
+        label2id=label2id,
+        ignore_mismatched_sizes=True,
+        quantization_config=bnb_cfg,
+        device_map="auto",
+    )
+    model = prepare_model_for_kbit_training(model)
+    peft_cfg = LoraConfig(
+        task_type=TaskType.SEQ_CLS,
+        r=lora_config.get("r", 16),
+        lora_alpha=lora_config.get("lora_alpha", 32),
+        lora_dropout=lora_config.get("lora_dropout", 0.05),
+        target_modules=lora_config.get("target_modules", ["q_proj", "v_proj"]),
+        bias="none",
+    )
+    model = get_peft_model(model, peft_cfg)
+    model.print_trainable_parameters()
+    return model
 
 
 def _apply_lora(model, lora_config: dict):
