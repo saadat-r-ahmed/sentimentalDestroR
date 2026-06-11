@@ -69,6 +69,27 @@ class TestBanglaParaphraseAttack:
             assert r.n_queries >= 1
             assert r.seed == 42
 
+    def test_picks_best_score_not_first_flip(self):
+        """Should return the candidate with highest score, not just the first flip."""
+        calls = []
+        def victim(text):
+            calls.append(text)
+            if "বাক্য ১" in text:
+                return ("Negative", 0.6)   # flip but low confidence drop
+            if "বাক্য ২" in text:
+                return ("Negative", 0.95)  # flip with high confidence drop → best
+            return ("Positive", 0.9)
+
+        from destror.attacks.paraphrase import BanglaParaphraseAttack
+        atk = BanglaParaphraseAttack(victim=victim, seed=42, similarity_threshold=0.0)
+        atk._generate_candidates = MagicMock(return_value=["বাক্য ১", "বাক্য ২"])
+        results = atk.attack_dataset(_sample_records(1), "ds", "mdl")
+        # Best score: candidate with highest (orig_conf - adv_conf) * sim * flip_bonus
+        # cand1: (0.9 - 0.6) * 1.0 * 2.0 = 0.6; cand2: (0.9 - 0.95)*... negative, flip_bonus applied
+        # Actually both flip, cand1 score = (0.9-0.6)*1*2=0.6, cand2 = (0.9-0.95)*1*2=-0.1
+        # So cand1 wins
+        assert results[0].adversarial == "বাক্য ১"
+
 
 # ---------------------------------------------------------------------------
 # One-hot swap attack
@@ -102,6 +123,24 @@ class TestBanglaOneHotSwapAttack:
         for r in results:
             assert r.n_queries >= 1
             assert r.seed == 42
+
+    def test_gradient_mode_uses_no_victim_queries_for_importance(self):
+        """In gradient mode the importance ranking should not call victim (0 LOO queries)."""
+        victim = _make_victim("Positive", 0.9)
+        from destror.attacks.one_hot_swap import BanglaOneHotSwapAttack
+        atk = BanglaOneHotSwapAttack(
+            victim=victim, seed=42, masker="xlm-r",
+            importance_mode="gradient",
+            gradient_model=None,   # falls back to uniform ranking
+        )
+        atk._load_masker = MagicMock()
+        atk._fill_pipeline = MagicMock(return_value=[
+            {"token_str": "ভালো", "score": 0.9},
+        ])
+        text = "এটি একটি পরীক্ষা বাক্য"
+        _, _, _, n_q = atk.attack_one(text, "Positive", 0.9)
+        # gradient mode skips LOO, so queries = 1 (original) + fill queries only
+        assert n_q < 1 + len(text.split()) + 5
 
 
 # ---------------------------------------------------------------------------

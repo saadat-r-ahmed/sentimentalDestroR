@@ -95,23 +95,32 @@ class BanglaParaphraseAttack(Attack):
         orig_pred: int | str,
         orig_conf: float,
     ) -> tuple[str, int | str, float, int]:
+        from destror.metrics.core import semantic_similarity
+
         candidates = self._generate_candidates(text)
         n_queries = 1  # victim query for the original
 
         best_adv = candidates[0] if candidates else text
         best_pred, best_conf = orig_pred, orig_conf
-        found = False
+        best_score = -1.0
 
         for cand in candidates:
+            sim = semantic_similarity(text, cand)
+            if sim < self.similarity_threshold:
+                continue
             pred, conf = self.victim(cand)
             n_queries += 1
-            if pred != orig_pred and not found:
-                best_adv, best_pred, best_conf = cand, pred, conf
-                found = True
-                break  # take first successful candidate (lowest perturbation)
 
-        if not found and candidates:
-            # return the candidate that most reduces confidence even without flipping
+            # Score = confidence-drop × similarity; flip gives a large bonus
+            flip_bonus = 2.0 if pred != orig_pred else 1.0
+            score = (orig_conf - conf) * sim * flip_bonus
+
+            if score > best_score:
+                best_score = score
+                best_adv, best_pred, best_conf = cand, pred, conf
+
+        # If nothing passed the threshold, query the first candidate as fallback
+        if best_score < 0 and candidates:
             best_adv = candidates[0]
             best_pred, best_conf = self.victim(best_adv)
             n_queries += 1

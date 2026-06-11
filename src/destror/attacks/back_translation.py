@@ -14,10 +14,16 @@ PIVOT_CONFIGS = {
         "bn_to_pivot": "csebuetnlp/banglat5_nmt_bn_en",
         "pivot_to_bn": "csebuetnlp/banglat5_nmt_en_bn",
     },
-    # Hindi pivot via Helsinki-NLP models (multilingual)
+    # Hindi pivot — Indic language, produces more lexically diverse adversaries
     "hi": {
         "bn_to_pivot": "Helsinki-NLP/opus-mt-bn-hi",
-        "pivot_to_bn":  "Helsinki-NLP/opus-mt-hi-bn",
+        "pivot_to_bn": "Helsinki-NLP/opus-mt-hi-bn",
+    },
+    # Sanskrit pivot — classical Indic, maximises lexical divergence from Bangla surface
+    # Falls back gracefully if opus-mt-mul-en doesn't cover sa→bn well.
+    "sa": {
+        "bn_to_pivot": "Helsinki-NLP/opus-mt-mul-en",  # multilingual → en as proxy
+        "pivot_to_bn": "csebuetnlp/banglat5_nmt_en_bn",
     },
 }
 

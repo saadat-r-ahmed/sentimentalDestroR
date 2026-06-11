@@ -20,12 +20,10 @@ _MAX_BUDGET = 0.20   # 20 % token perturbation cap (revision.md §2.3)
 
 
 class BanglaOneHotSwapAttack(Attack):
-    """Word-swap attack with BanglaBERT/MuRIL mask filling and leave-one-out importance.
+    """Word-swap attack with BanglaBERT/MuRIL mask filling and importance ranking.
 
-    Changes from original:
-    - Mask-fill model is configurable (default: BanglaBERT, ablation: XLM-R)
-    - Importance ranking uses leave-one-out (black-box) — gradient saliency in future work
-    - Hard budget cap: ≤20% of tokens perturbed
+    importance_mode="loo"      — leave-one-out (black-box, default)
+    importance_mode="gradient" — gradient saliency (white-box, requires gradient_model)
     """
 
     name = "one_hot_swap"
@@ -38,6 +36,9 @@ class BanglaOneHotSwapAttack(Attack):
         top_k: int = _TOP_K,
         perturbation_budget: float = _MAX_BUDGET,
         similarity_threshold: float = 0.7,
+        importance_mode: str = "loo",
+        gradient_model=None,
+        gradient_tokenizer=None,
     ):
         super().__init__(victim, seed)
         if masker not in _MASKER_MODELS:
@@ -46,6 +47,9 @@ class BanglaOneHotSwapAttack(Attack):
         self.top_k = top_k
         self.perturbation_budget = perturbation_budget
         self.similarity_threshold = similarity_threshold
+        self.importance_mode = importance_mode
+        self.gradient_model = gradient_model
+        self.gradient_tokenizer = gradient_tokenizer
         self._fill_pipeline = None
 
     def _load_masker(self):
@@ -70,7 +74,15 @@ class BanglaOneHotSwapAttack(Attack):
     def _importance_scores(
         self, tokens: list[str], orig_pred: int | str, orig_conf: float
     ) -> list[tuple[int, float]]:
-        """Leave-one-out importance: score = drop in confidence when token removed."""
+        """Rank token importance. Uses LOO (black-box) or gradient saliency (white-box)."""
+        if self.importance_mode == "gradient" and self.gradient_model is not None:
+            return self._gradient_importance(tokens, orig_pred)
+        return self._loo_importance(tokens, orig_pred, orig_conf)
+
+    def _loo_importance(
+        self, tokens: list[str], orig_pred: int | str, orig_conf: float
+    ) -> list[tuple[int, float]]:
+        """Leave-one-out: score = confidence drop when token is removed."""
         scores: list[tuple[int, float]] = []
         for i in range(len(tokens)):
             masked = tokens[:i] + tokens[i + 1:]
@@ -81,6 +93,64 @@ class BanglaOneHotSwapAttack(Attack):
                 scores.append((i, float("inf")))
             else:
                 scores.append((i, orig_conf - conf))
+        return sorted(scores, key=lambda x: x[1], reverse=True)
+
+    def _gradient_importance(
+        self, tokens: list[str], orig_pred: int | str
+    ) -> list[tuple[int, float]]:
+        """Gradient saliency: ||∂L/∂e_i|| × ||e_i|| (L1-norm of integrated gradient × embedding)."""
+        model = self.gradient_model
+        tokenizer = self.gradient_tokenizer
+        if model is None or tokenizer is None:
+            return [(i, 1.0) for i in range(len(tokens))]
+
+        text = " ".join(tokens)
+        label_id = model.config.label2id.get(str(orig_pred), 0)
+
+        enc = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
+        if next(model.parameters()).is_cuda:
+            enc = {k: v.cuda() for k, v in enc.items()}
+
+        embeddings = model.get_input_embeddings()(enc["input_ids"])
+        embeddings = embeddings.detach().requires_grad_(True)
+
+        # Forward pass with embedding hook
+        outputs = model(inputs_embeds=embeddings, attention_mask=enc.get("attention_mask"))
+        logits = outputs.logits
+        loss = -logits[0, label_id]  # maximise confidence drop
+        loss.backward()
+
+        # Token saliency = L2 norm of gradient × embedding (input × gradient)
+        grad = embeddings.grad[0]  # (seq_len, hidden)
+        saliency = (grad * embeddings[0].detach()).norm(dim=-1)  # (seq_len,)
+
+        # Map subword tokens back to whitespace tokens (approximate)
+        subword_ids = enc["input_ids"][0].tolist()
+        word_tokens = tokenizer.convert_ids_to_tokens(subword_ids)
+        scores: list[tuple[int, float]] = []
+        tok_idx, sal_buf = 0, []
+        word_idx = 0
+        for i, wt in enumerate(word_tokens):
+            if wt in (tokenizer.cls_token, tokenizer.sep_token, tokenizer.pad_token):
+                continue
+            sal_buf.append(saliency[i].item())
+            # Heuristic: new word starts when token doesn't begin with continuation marker
+            is_new = not (wt.startswith("##") or wt.startswith("▁") is False and i > 1)
+            if is_new and sal_buf and word_idx < len(tokens):
+                scores.append((word_idx, float(np.mean(sal_buf))))
+                word_idx += 1
+                sal_buf = [saliency[i].item()]
+
+        if sal_buf and word_idx < len(tokens):
+            scores.append((word_idx, float(np.mean(sal_buf))))
+
+        # Pad remaining tokens with mean saliency
+        mean_sal = float(np.mean([s for _, s in scores])) if scores else 0.0
+        covered = {idx for idx, _ in scores}
+        for i in range(len(tokens)):
+            if i not in covered:
+                scores.append((i, mean_sal))
+
         return sorted(scores, key=lambda x: x[1], reverse=True)
 
     def attack_one(
@@ -102,7 +172,8 @@ class BanglaOneHotSwapAttack(Attack):
         max_swaps = max(1, int(len(tokens) * self.perturbation_budget))
 
         ranked = self._importance_scores(tokens, orig_pred, orig_conf)
-        n_queries += len(tokens)  # leave-one-out queries
+        if self.importance_mode == "loo":
+            n_queries += len(tokens)  # leave-one-out queries to victim
 
         current_tokens = list(tokens)
         swaps_done = 0
