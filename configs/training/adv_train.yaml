@@ -1,0 +1,57 @@
+# @package _global_
+# Adversarial training config (Week 4).
+# Mirrors finetune.yaml hyperparameters; only adv_data section is new.
+
+training:
+  num_epochs: 5
+  batch_size: 16
+  learning_rate: 2.0e-5
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  max_seq_length: 256
+  gradient_accumulation_steps: 1
+  fp16: true
+  bf16: false
+
+model_overrides:
+  titulm-1b:
+    batch_size: 2
+    gradient_accumulation_steps: 8
+    max_seq_length: 64
+    fp16: false
+    bf16: true
+
+model:
+  victims:
+    - banglabert
+    - banglishbert
+    - xlm-r
+    - muril
+    - indicbertv2
+    - titulm-1b
+
+dataset:
+  names: [blp23, youtube, cognisenti, basa_cricket]
+  split_seed: 42
+
+# Which adversarial attacks to augment training data with.
+# Run adv_train.py multiple times with different attacks lists to fill the matrix:
+#   attacks: [paraphrase]                         → row "+Paraphrase"
+#   attacks: [back_translation]                   → row "+BackTrans"
+#   attacks: [one_hot_swap]                       → row "+OneHot"
+#   attacks: [paraphrase, back_translation, one_hot_swap]  → row "+All destroR"
+adv_data:
+  attacks: [paraphrase]
+  dir: results/adv_train_data
+  augment_ratio: 0.5   # fraction of clean train to augment with adv examples
+
+run:
+  seeds: [42]
+  output_dir: results/adv_trained_models
+  wandb: true
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules: [q_proj, v_proj]
