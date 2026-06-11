@@ -66,6 +66,9 @@ def main(cfg: DictConfig) -> None:
                     if cfg.run.push_to_hub:
                         hub_id = f"{cfg.run.hub_org}/destror-{model_key}-{dataset_name}"
 
+                    from omegaconf import OmegaConf
+                    lora_cfg = OmegaConf.to_container(cfg.lora, resolve=True) if use_lora else None
+
                     metrics = finetune(
                         model_key=model_key,
                         dataset_name=dataset_name,
@@ -86,7 +89,7 @@ def main(cfg: DictConfig) -> None:
                         push_to_hub=cfg.run.push_to_hub,
                         hub_model_id=hub_id,
                         use_lora=use_lora,
-                        lora_config=dict(cfg.lora) if use_lora else None,
+                        lora_config=lora_cfg,
                     )
 
                     all_metrics.append(metrics)
