@@ -51,11 +51,11 @@ class BanglaParaphraseAttack(Attack):
             self._model = self._model.cuda()
 
     def _generate_candidates(self, text: str) -> list[str]:
-        from normalizer import normalize
         self._load_model()
         set_seed(self.seed)
 
         try:
+            from normalizer import normalize
             normalized = normalize(text)
         except Exception:
             normalized = text
