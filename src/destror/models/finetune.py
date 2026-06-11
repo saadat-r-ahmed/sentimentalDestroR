@@ -106,7 +106,7 @@ def finetune(
         warmup_ratio=warmup_ratio,
         weight_decay=weight_decay,
         fp16=fp16 and torch.cuda.is_available(),
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
         metric_for_best_model="f1_macro",
@@ -132,7 +132,7 @@ def finetune(
         args=args,
         train_dataset=train_ds,
         eval_dataset=eval_ds,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         data_collator=DataCollatorWithPadding(tokenizer),
         compute_metrics=compute_metrics,
     )

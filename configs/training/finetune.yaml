@@ -12,7 +12,7 @@ training:
   save_strategy: epoch
   load_best_model_at_end: true
   metric_for_best_model: f1_macro
-  evaluation_strategy: epoch
+  eval_strategy: epoch
 
 # Per-model overrides applied in finetune_victim.py
 # titulm-1b (1B params, LoRA) requires smaller batch on 8GB VRAM
