@@ -29,7 +29,7 @@ def main(cfg: DictConfig) -> None:
     for seed in cfg.run.seeds:
         set_seed(seed)
 
-        for model_key in cfg.model.keys:
+        for model_key in cfg.model.victims:
             use_lora = model_key in lora_models
 
             # Apply per-model hyperparameter overrides (e.g. smaller batch for LLMs)

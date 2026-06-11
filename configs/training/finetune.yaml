@@ -23,7 +23,7 @@ model_overrides:
     max_seq_length: 128
 
 model:
-  keys:
+  victims:
     - banglabert        # csebuetnlp/banglabert
     - banglishbert      # csebuetnlp/banglishbert
     - xlm-r             # xlm-roberta-base
