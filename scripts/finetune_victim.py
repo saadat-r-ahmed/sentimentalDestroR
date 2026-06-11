@@ -107,9 +107,12 @@ def main(cfg: DictConfig) -> None:
                     if cfg.run.wandb:
                         wandb.finish()
 
-    # Write summary table
+    # Merge with any existing runs from prior invocations, then write
     summary_path = RESULTS_DIR / "clean_f1_summary.json"
-    summary_path.write_text(json.dumps(all_metrics, indent=2, ensure_ascii=False), encoding="utf-8")
+    existing = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else []
+    existing_keys = {(m["model"], m["dataset"], m["seed"]) for m in existing}
+    merged = existing + [m for m in all_metrics if (m["model"], m["dataset"], m["seed"]) not in existing_keys]
+    summary_path.write_text(json.dumps(merged, indent=2, ensure_ascii=False), encoding="utf-8")
     log.info(f"Summary written → {summary_path}")
 
     # Print clean-F1 table
