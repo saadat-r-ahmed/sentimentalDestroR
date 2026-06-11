@@ -18,9 +18,11 @@ training:
 # titulm-1b (1B params, LoRA) requires smaller batch on 8GB VRAM
 model_overrides:
   titulm-1b:
-    batch_size: 4
-    gradient_accumulation_steps: 4   # effective batch = 16
-    max_seq_length: 128
+    batch_size: 2
+    gradient_accumulation_steps: 8   # effective batch = 16
+    max_seq_length: 64
+    fp16: false
+    bf16: true
 
 model:
   victims:

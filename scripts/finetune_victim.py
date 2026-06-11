@@ -37,6 +37,8 @@ def main(cfg: DictConfig) -> None:
             batch_size  = overrides.get("batch_size",  cfg.training.batch_size)
             grad_accum  = overrides.get("gradient_accumulation_steps", cfg.training.gradient_accumulation_steps)
             max_seq_len = overrides.get("max_seq_length", cfg.training.max_seq_length)
+            use_fp16    = overrides.get("fp16", cfg.training.fp16)
+            use_bf16    = overrides.get("bf16", False)
 
             for dataset_name in cfg.dataset.names:
                 run_id = f"{model_key}_{dataset_name}_seed{seed}"
@@ -78,7 +80,8 @@ def main(cfg: DictConfig) -> None:
                         warmup_ratio=cfg.training.warmup_ratio,
                         weight_decay=cfg.training.weight_decay,
                         max_seq_length=max_seq_len,
-                        fp16=cfg.training.fp16,
+                        fp16=use_fp16,
+                        bf16=use_bf16,
                         seed=seed,
                         push_to_hub=cfg.run.push_to_hub,
                         hub_model_id=hub_id,
