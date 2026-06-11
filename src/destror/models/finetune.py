@@ -28,7 +28,7 @@ _BASE_MODELS = {
     "xlm-r":        "xlm-roberta-base",
     "muril":        "google/muril-base-cased",
     "indicbertv2":  "ai4bharat/IndicBERTv2-MLM-only",
-    "titulm-1b":    "hishab/titulm-llama-3.2-1b",
+    "titulm-1b":    "hishab/titulm-llama-3.2-1b-v2.0",
 }
 
 

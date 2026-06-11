@@ -11,7 +11,7 @@ VICTIM_MODELS = {
     "xlm-r":            "xlm-roberta-base",
     "muril":            "google/muril-base-cased",
     "indicbertv2":      "ai4bharat/IndicBERTv2-MLM-only",
-    "titulm-1b":        "hishab/titulm-llama-3.2-1b",
+    "titulm-1b":        "hishab/titulm-llama-3.2-1b-v2.0",
     # HF fine-tuned checkpoints (uploaded after Week 1 finetuning)
     "banglabert-finetuned":   "saadat-r-ahmed/banglabert-destror",
     "banglishbert-finetuned": "saadat-r-ahmed/banglishbert-destror",
