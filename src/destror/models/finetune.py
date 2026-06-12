@@ -121,6 +121,7 @@ def finetune(
         gradient_checkpointing=use_lora,
         eval_strategy="epoch",
         save_strategy="epoch",
+        save_total_limit=1,
         load_best_model_at_end=True,
         metric_for_best_model="f1_macro",
         greater_is_better=True,
@@ -151,6 +152,14 @@ def finetune(
     )
 
     trainer.train()
+
+    # Delete optimizer/scheduler states from the saved checkpoint — not needed
+    # for inference and each one is ~400MB (same size as the model weights).
+    import glob as _glob
+    for _f in _glob.glob(str(ckpt_dir / "**" / "optimizer.pt"), recursive=True) + \
+               _glob.glob(str(ckpt_dir / "**" / "scheduler.pt"), recursive=True) + \
+               _glob.glob(str(ckpt_dir / "**" / "rng_state*.pth"), recursive=True):
+        Path(_f).unlink(missing_ok=True)
 
     # Evaluate on test set
     test_preds_out = trainer.predict(test_ds)
