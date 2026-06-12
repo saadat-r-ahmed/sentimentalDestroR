@@ -118,7 +118,7 @@ def main(cfg: DictConfig) -> None:
                     )
 
                 run_name = f"{model_key}_{dataset_name}_{regime}_seed{seed}"
-                ckpt_dir = out_root / run_name
+                regime_dir = out_root / regime   # each regime gets its own subdir
 
                 if cfg.run.wandb:
                     wandb.init(
@@ -141,7 +141,7 @@ def main(cfg: DictConfig) -> None:
                         train_records=mixed_train,
                         eval_records=dev_records,
                         test_records=test_records,
-                        output_dir=ckpt_dir.parent,
+                        output_dir=regime_dir,
                         num_epochs=cfg.training.num_epochs,
                         batch_size=batch_size,
                         gradient_accumulation_steps=grad_accum,

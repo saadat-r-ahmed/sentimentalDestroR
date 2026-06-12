@@ -60,17 +60,26 @@ def _asr_from_jsonl(path: Path) -> dict:
 
 
 def _find_checkpoint(model_key: str, dataset_name: str, regime: str, seed: int) -> Path | None:
-    """Locate the best-model checkpoint directory for an adv-trained run."""
-    run_name = f"{model_key}_{dataset_name}_{regime}_seed{seed}"
-    candidate = _ADV_MODELS_DIR / run_name / run_name
-    if candidate.exists():
-        return candidate
-    # Trainer saves best checkpoint under checkpoint-XXXX subdir
-    parent = _ADV_MODELS_DIR / run_name
+    """Locate the best-model checkpoint directory for an adv-trained run.
+
+    adv_train.py saves to: results/adv_trained_models/{regime}/{model}_{dataset}_seed{seed}/
+    The Trainer creates checkpoint-XXXX subdirs; trainer_state.json records the best one.
+    """
+    # Primary layout: regime subdir (current convention)
+    run_name = f"{model_key}_{dataset_name}_seed{seed}"
+    parent = _ADV_MODELS_DIR / regime / run_name
     if parent.exists():
-        ckpts = sorted(parent.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[-1]))
-        if ckpts:
-            return ckpts[-1]
+        try:
+            import json as _json
+            ckpts = sorted(parent.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[-1]))
+            if ckpts:
+                state = _json.loads((ckpts[-1] / "trainer_state.json").read_text())
+                best = state.get("best_model_checkpoint")
+                if best and Path(best).exists():
+                    return Path(best)
+                return ckpts[-1]
+        except Exception:
+            pass
     return None
 
 
@@ -98,18 +107,12 @@ def main(cfg: DictConfig) -> None:
     datasets = list(cfg.dataset.names)
     victims = list(cfg.model.victims)
 
-    # Discover available training regimes from adv_trained_models dir
+    # Discover available training regimes — each regime is a subdir of adv_trained_models/
     regimes_found: set[str] = {"clean"}
     if _ADV_MODELS_DIR.exists():
         for d in _ADV_MODELS_DIR.iterdir():
-            # dir name pattern: {model}_{dataset}_{regime}_seed{seed}
-            parts = d.name.rsplit("_seed", 1)
-            if len(parts) == 2:
-                regime_part = parts[0].rsplit("_", 2)
-                if len(regime_part) >= 3:
-                    regime = "_".join(regime_part[2:])  # everything after model_dataset_
-                    if regime:
-                        regimes_found.add(regime)
+            if d.is_dir() and d.name.startswith("adv_"):
+                regimes_found.add(d.name)
 
     log.info(f"Regimes found: {sorted(regimes_found)}")
 
