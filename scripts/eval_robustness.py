@@ -149,6 +149,31 @@ def main(cfg: DictConfig) -> None:
     eval_dir = Path("results/adv_eval_runs")
     eval_dir.mkdir(parents=True, exist_ok=True)
 
+    # Fold in any adv-eval JSONL already produced (resume after interruption).
+    # Filename: {attack}_{model}_{dataset}_{regime}_seed{seed}.jsonl
+    for jsonl in eval_dir.glob("*.jsonl"):
+        stem = jsonl.stem
+        for atk in attack_map:
+            if not stem.startswith(atk + "_"):
+                continue
+            rem = stem[len(atk) + 1:]  # model_dataset_regime_seed{seed}
+            for seed in seeds:
+                suffix = f"_seed{seed}"
+                if not rem.endswith(suffix):
+                    continue
+                body = rem[:-len(suffix)]  # model_dataset_regime
+                for regime in sorted(regimes_found):
+                    if regime != "clean" and body.endswith("_" + regime):
+                        md = body[: -(len(regime) + 1)]  # model_dataset
+                        for dataset in datasets:
+                            if md.endswith("_" + dataset):
+                                model_key = md[: -(len(dataset) + 1)]
+                                key = f"{regime}|{model_key}|{dataset}|seed{seed}"
+                                matrix.setdefault(key, {})
+                                if atk not in matrix[key]:
+                                    matrix[key][atk] = _asr_from_jsonl(jsonl)
+                                    log.info(f"  folded (resume): {key} vs {atk}")
+
     for regime in sorted(regimes_found - {"clean"}):
         for seed in seeds:
             for model_key in victims:
@@ -176,11 +201,12 @@ def main(cfg: DictConfig) -> None:
                         log.info(f"Evaluating: {matrix_key} vs {attack_name}")
                         try:
                             victim = load_victim(str(ckpt))
-                            attack = attack_cls(
-                                victim=victim,
-                                seed=seed,
-                                **{k: v for k, v in cfg.attack.items() if k not in ("name",)},
-                            )
+                            # Each attack class has a different __init__ signature, so we
+                            # instantiate with only the common (victim, seed) args and let
+                            # each use its own defaults (similarity_threshold=0.7,
+                            # perturbation_budget=0.20). Passing one attack's config to all
+                            # classes breaks on unexpected kwargs (e.g. model_name).
+                            attack = attack_cls(victim=victim, seed=seed)
                             records = load_dataset(dataset_name, split="test", seed=seed)
                             results = attack.attack_dataset(
                                 records, dataset_name=dataset_name, model_name=f"{model_key}_{regime}"
