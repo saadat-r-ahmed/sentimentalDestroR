@@ -38,6 +38,7 @@ class BanglaTextFoolerAttack(Attack):
         self.embed_model = embed_model
         self._tokenizer = None
         self._model = None
+        self._pipeline = None
 
     def _load_embed_model(self):
         if self._model is not None:
@@ -48,6 +49,16 @@ class BanglaTextFoolerAttack(Attack):
         self._model.eval()
         if torch.cuda.is_available():
             self._model = self._model.cuda()
+
+    def _load_pipeline(self):
+        if self._pipeline is not None:
+            return
+        from transformers import pipeline
+        self._pipeline = pipeline(
+            "fill-mask", model=self.embed_model,
+            device=0 if torch.cuda.is_available() else -1,
+            top_k=self.top_k,
+        )
 
     def _embed(self, texts: list[str]) -> np.ndarray:
         """Mean-pool last hidden state for each text."""
@@ -66,19 +77,13 @@ class BanglaTextFoolerAttack(Attack):
 
     def _word_candidates(self, word: str, context_tokens: list[str], idx: int) -> list[str]:
         """Use fill-mask via BanglaBERT to get substitution candidates, then rank by embedding similarity."""
-        # Build masked sentence
-        masked = " ".join(context_tokens[:idx] + [self._tokenizer.mask_token] + context_tokens[idx + 1:])
+        self._load_pipeline()
+        self._load_embed_model()
+        mask_tok = self._pipeline.tokenizer.mask_token
+        masked = " ".join(context_tokens[:idx] + [mask_tok] + context_tokens[idx + 1:])
         try:
-            enc = self._tokenizer(masked, return_tensors="pt", truncation=True, max_length=256)
-            if next(self._model.parameters()).is_cuda:
-                enc = {k: v.cuda() for k, v in enc.items()}
-            mask_pos = (enc["input_ids"][0] == self._tokenizer.mask_token_id).nonzero(as_tuple=True)[0]
-            if len(mask_pos) == 0:
-                return []
-            with torch.no_grad():
-                logits = self._model(**enc).last_hidden_state[0, mask_pos[0]]
-            top_ids = logits.topk(self.top_k).indices.tolist()
-            cands = [self._tokenizer.decode([i]).strip() for i in top_ids]
+            fills = self._pipeline(masked)
+            cands = [f["token_str"].strip() for f in fills]
             cands = [c for c in cands if c and c != word and not c.startswith("##")]
         except Exception:
             return []
