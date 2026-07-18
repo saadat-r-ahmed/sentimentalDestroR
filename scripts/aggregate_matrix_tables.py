@@ -23,10 +23,13 @@ ATTACK_LABEL = {
     "bae": "BAE$^\\dagger$",
 }
 REGIME_LABEL = {
+    "clean": "Undefended",
     "adv_paraphrase": "AT-Paraphrase",
     "adv_back_translation": "AT-BackTrans",
     "adv_all": "AT-All",
 }
+# Regimes that represent a defense (i.e. everything except the undefended baseline)
+DEFENDED = ["adv_paraphrase", "adv_back_translation", "adv_all"]
 MODEL_LABEL = {
     "banglabert": "BanglaBERT",
     "banglishbert": "BanglishBERT",
@@ -82,10 +85,12 @@ def regime_attack_table(rows):
     ]
     for atk in ATTACKS:
         cells = [ra.get((atk, r), float("nan")) for r in REGIME_LABEL]
-        row_mean = mean(c for c in cells)
+        # reduction = undefended minus the best (lowest) defended regime
+        undef = ra.get((atk, "clean"), float("nan"))
+        best_def = min(ra.get((atk, r), float("nan")) for r in DEFENDED)
         lines.append(ATTACK_LABEL[atk] + " & " +
                      " & ".join(fmt(c) for c in cells) +
-                     " & " + fmt(row_mean) + " \\\\")
+                     " & $-$" + fmt(undef - best_def) + " \\\\")
     lines += ["\\bottomrule", "\\end{tabular}", "\\end{table*}", ""]
     return "\n".join(lines)
 
