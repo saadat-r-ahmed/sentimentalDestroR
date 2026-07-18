@@ -35,6 +35,7 @@ log = get_logger(__name__)
 
 _RAW_RUNS_DIR  = Path("results/raw_runs")
 _ADV_MODELS_DIR = Path("results/adv_trained_models")
+_FINETUNED_DIR = Path("results/finetuned_models")
 _MATRIX_PATH   = Path("results/robustness_matrix.json")
 
 # Attacks that appear as test columns in the matrix
@@ -65,9 +66,13 @@ def _find_checkpoint(model_key: str, dataset_name: str, regime: str, seed: int) 
     adv_train.py saves to: results/adv_trained_models/{regime}/{model}_{dataset}_seed{seed}/
     The Trainer creates checkpoint-XXXX subdirs; trainer_state.json records the best one.
     """
-    # Primary layout: regime subdir (current convention)
+    # The undefended baseline ("clean") is the plain finetuned model; every other
+    # regime is an adversarially-trained model under adv_trained_models/{regime}/.
     run_name = f"{model_key}_{dataset_name}_seed{seed}"
-    parent = _ADV_MODELS_DIR / regime / run_name
+    if regime == "clean":
+        parent = _FINETUNED_DIR / run_name
+    else:
+        parent = _ADV_MODELS_DIR / regime / run_name
     if parent.exists():
         try:
             import json as _json
@@ -163,7 +168,7 @@ def main(cfg: DictConfig) -> None:
                     continue
                 body = rem[:-len(suffix)]  # model_dataset_regime
                 for regime in sorted(regimes_found):
-                    if regime != "clean" and body.endswith("_" + regime):
+                    if body.endswith("_" + regime):
                         md = body[: -(len(regime) + 1)]  # model_dataset
                         for dataset in datasets:
                             if md.endswith("_" + dataset):
@@ -174,7 +179,7 @@ def main(cfg: DictConfig) -> None:
                                     matrix[key][atk] = _asr_from_jsonl(jsonl)
                                     log.info(f"  folded (resume): {key} vs {atk}")
 
-    for regime in sorted(regimes_found - {"clean"}):
+    for regime in sorted(regimes_found):
         for seed in seeds:
             for model_key in victims:
                 for dataset_name in datasets:
